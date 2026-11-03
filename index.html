@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>AutoCare Pro • Gestão Veicular & Sincronização Google Drive • 4U.IA.BR</title>
+    <meta name="description" content="Controle completo de manutenção automotiva, consumo de combustível, calculadora flex e sincronização direta no seu Google Drive com total privacidade."/>
+    <link rel="icon" type="image/png" href="/loja/favicon-32x32.png"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="style.css?v=2.0" rel="stylesheet"/>
+    <!-- Google Identity Services (GIS) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+    <div class="mesh-overlay"></div>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Desktop -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-badge">🚗</div>
+                <div class="brand-info">
+                    <h1>AutoCare Pro</h1>
+                    <span>Gestão Veicular 4U</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Navegação Principal</span>
+                <button class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-section="vehicles" onclick="showSection('vehicles')">
+                    <span class="nav-item-icon">🚗</span>
+                    <span>Meus Veículos</span>
+                </button>
+                <button class="nav-item" data-section="maintenance" onclick="showSection('maintenance')">
+                    <span class="nav-item-icon">🔧</span>
+                    <span>Manutenções</span>
+                </button>
+                <button class="nav-item" data-section="fuel" onclick="showSection('fuel')">
+                    <span class="nav-item-icon">⛽</span>
+                    <span>Abastecimentos</span>
+                </button>
+
+                <span class="nav-section-title">Ferramentas & Alertas</span>
+                <button class="nav-item" data-section="flexcalc" onclick="showSection('flexcalc')">
+                    <span class="nav-item-icon">⚖️</span>
+                    <span>Calculadora Flex</span>
+                </button>
+                <button class="nav-item" data-section="alerts" onclick="showSection('alerts')">
+                    <span class="nav-item-icon">🔔</span>
+                    <span>Alertas & Prazos</span>
+                    <span class="nav-badge hidden" id="sidebarAlertBadge">0</span>
+                </button>
+                <button class="nav-item" data-section="reports" onclick="showSection('reports')">
+                    <span class="nav-item-icon">📈</span>
+                    <span>Relatórios & Gastos</span>
+                </button>
+                <button class="nav-item" data-section="cloud" onclick="showSection('cloud')">
+                    <span class="nav-item-icon">💾</span>
+                    <span>Backup & Nuvem</span>
+                </button>
+            </nav>
+
+            <!-- Sidebar Cloud & Google Profile Footer -->
+            <div class="sidebar-footer">
+                <div class="cloud-card">
+                    <div class="cloud-status-row">
+                        <div class="cloud-dot local" id="cloudDot"></div>
+                        <span id="cloudStatusText" style="font-weight: 600; color: var(--text-secondary);">Modo Local</span>
+                    </div>
+
+                    <div class="user-profile-box">
+                        <div id="userAvatar">
+                            <div class="user-avatar-fallback">⚡</div>
+                        </div>
+                        <div>
+                            <div class="user-name-text" id="userName">Modo Local</div>
+                            <div class="user-email-text" id="userEmail">Sem Conta Google</div>
+                        </div>
+                    </div>
+
+                    <button class="btn-google-drive" id="btnGoogleAuth" onclick="loginWithGoogle()">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                        <span>Conectar Google</span>
+                    </button>
+
+                    <button class="btn-sync-now" onclick="syncWithGoogleDrive(true)" title="Sincroniza agora com a pasta AutoCare 4U no seu Google Drive">
+                        <span>🔄 Sincronizar Drive</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="top-nav-left">
+                    <button class="btn-menu-toggle" onclick="toggleSidebar()" title="Abrir Menu">☰</button>
+                    <div class="breadcrumb-trail">
+                        <a href="https://4u.ia.br/loja/">4U.IA.BR</a>
+                        <span class="breadcrumb-sep">/</span>
+                        <a href="https://4u.ia.br/loja/">Loja de Apps</a>
+                        <span class="breadcrumb-sep">/</span>
+                        <span class="breadcrumb-current">AutoCare Pro</span>
+                    </div>
+                </div>
+
+                <div class="top-nav-right">
+                    <div class="badge-privacy">
+                        <span>🛡️</span>
+                        <span>100% Privado no seu Google Drive</span>
+                    </div>
+                    <a href="https://4u.ia.br/loja/" class="btn-link-store">
+                        <span>← Loja de Apps</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Page Content Body -->
+            <main class="page-content">
+
+                <!-- 1. SECTION: DASHBOARD -->
+                <section id="section-dashboard" class="app-section">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Visão Geral da Frota</h2>
+                            <p>Controle preventivo, combustível e custos em tempo real.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-secondary" onclick="loadDemoData()">⚡ Dados de Demonstração</button>
+                            <button class="btn-primary" onclick="openModal('fuelModal')">⛽ + Abastecer</button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-cyan">🚗</div>
+                                <span class="metric-trend">Ativos</span>
+                            </div>
+                            <div class="metric-val" id="totalVehicles">0</div>
+                            <div class="metric-label">Veículos Cadastrados</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-orange">🔧</div>
+                                <span class="metric-trend">Total</span>
+                            </div>
+                            <div class="metric-val" id="totalMaintenance">0</div>
+                            <div class="metric-label">Manutenções Feitas</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-emerald">💰</div>
+                                <span class="metric-trend">Acumulado</span>
+                            </div>
+                            <div class="metric-val" id="totalSpent">R$ 0,00</div>
+                            <div class="metric-label">Total Gasto (Geral)</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-red">🔔</div>
+                                <span class="metric-trend">Prazos</span>
+                            </div>
+                            <div class="metric-val" id="pendingAlerts">0</div>
+                            <div class="metric-label">Alertas Pendentes</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-purple">📏</div>
+                                <span class="metric-trend">Eficiência</span>
+                            </div>
+                            <div class="metric-val" id="costPerKm">-- / km</div>
+                            <div class="metric-label">Custo Médio por KM</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Ribbon -->
+                    <div class="quick-ribbon">
+                        <div class="quick-btn" onclick="openModal('fuelModal')">
+                            <span class="quick-btn-icon">⛽</span>
+                            <div class="quick-btn-info">
+                                <h4>Abastecer Agora</h4>
+                                <p>Registre litros, preço e odômetro</p>
+                            </div>
+                        </div>
+                        <div class="quick-btn" onclick="openModal('maintenanceModal')">
+                            <span class="quick-btn-icon">🔧</span>
+                            <div class="quick-btn-info">
+                                <h4>Nova Manutenção</h4>
+                                <p>Óleo, freios, pneus ou revisão</p>
+                            </div>
+                        </div>
+                        <div class="quick-btn" onclick="showSection('flexcalc')">
+                            <span class="quick-btn-icon">⚖️</span>
+                            <div class="quick-btn-info">
+                                <h4>Calculadora Flex</h4>
+                                <p>Descubra se compensa Etanol</p>
+                            </div>
+                        </div>
+                        <div class="quick-btn" onclick="showSection('cloud')">
+                            <span class="quick-btn-icon">☁️</span>
+                            <div class="quick-btn-info">
+                                <h4>Google Drive Sync</h4>
+                                <p>Backup seguro e automático</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard 2-Columns -->
+                    <div class="dashboard-grid-2">
+                        <div class="card">
+                            <div class="card-title-row">
+                                <h3>📊 Gastos Mensais (Últimos 6 Meses)</h3>
+                                <button class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px;" onclick="showSection('reports')">Ver Detalhes</button>
+                            </div>
+                            <div id="monthlyBarChart" style="height: 220px; display: flex; align-items: flex-end; gap: 14px; padding-top: 20px;">
+                                <!-- Bars populated by JS -->
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title-row">
+                                <h3>🔔 Próximas Revisões</h3>
+                                <button class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px;" onclick="showSection('alerts')">Configurar</button>
+                            </div>
+                            <div id="upcomingMaintenanceContainer">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Vehicles -->
+                    <div class="card">
+                        <div class="card-title-row">
+                            <h3>🚗 Meus Veículos Recentes</h3>
+                            <button class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px;" onclick="showSection('vehicles')">Gerenciar Todos</button>
+                        </div>
+                        <div class="vehicles-grid" id="recentVehiclesContainer">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. SECTION: VEÍCULOS -->
+                <section id="section-vehicles" class="app-section" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Meus Veículos</h2>
+                            <p>Cadastre carros, motos e utilitários da sua garagem ou frota.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-primary" onclick="openModal('vehicleModal')">+ Cadastrar Veículo</button>
+                        </div>
+                    </div>
+
+                    <div class="vehicles-grid" id="vehiclesContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- 3. SECTION: MANUTENÇÕES -->
+                <section id="section-maintenance" class="app-section" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Histórico de Manutenções</h2>
+                            <p>Controle rigoroso de peças trocadas, valores e quilometragens.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-primary" onclick="openModal('maintenanceModal')">+ Registrar Manutenção</button>
+                        </div>
+                    </div>
+
+                    <!-- Filters Bar -->
+                    <div class="card" style="padding: 16px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                            <select id="filterMaintVehicle" onchange="renderMaintenanceList()" class="form-control" style="max-width: 240px;">
+                                <option value="">Todos os veículos</option>
+                            </select>
+                            <select id="filterMaintType" onchange="renderMaintenanceList()" class="form-control" style="max-width: 200px;">
+                                <option value="">Todos os tipos</option>
+                                <option value="Troca de Óleo">Troca de Óleo</option>
+                                <option value="Troca de Pneus">Troca de Pneus</option>
+                                <option value="Pastilhas de Freio">Pastilhas de Freio</option>
+                                <option value="Filtros">Filtros</option>
+                                <option value="Alinhamento">Alinhamento</option>
+                                <option value="Correia Dentada">Correia Dentada</option>
+                                <option value="Revisão Geral">Revisão Geral</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Veículo</th>
+                                        <th>Serviço</th>
+                                        <th>KM</th>
+                                        <th>Valor</th>
+                                        <th>Oficina</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="maintenanceTableBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. SECTION: ABASTECIMENTOS -->
+                <section id="section-fuel" class="app-section" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Controle de Combustível</h2>
+                            <p>Monitore médias de consumo real e gastos por tanque.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-primary" onclick="openModal('fuelModal')">⛽ + Novo Abastecimento</button>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-orange">📊</div>
+                                <span class="metric-trend">Tanque Cheio</span>
+                            </div>
+                            <div class="metric-val" id="avgConsumption">-- km/l</div>
+                            <div class="metric-label">Consumo Médio Real</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-emerald">⛽</div>
+                                <span class="metric-trend">Combustível</span>
+                            </div>
+                            <div class="metric-val" id="totalFuelSpent">R$ 0,00</div>
+                            <div class="metric-label">Total em Combustível</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-card-top">
+                                <div class="metric-icon-box metric-icon-cyan">💧</div>
+                                <span class="metric-trend">Volume</span>
+                            </div>
+                            <div class="metric-val" id="totalFuelLiters">0 L</div>
+                            <div class="metric-label">Litros Abastecidos</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Veículo</th>
+                                        <th>Tipo</th>
+                                        <th>Odômetro</th>
+                                        <th>Litros</th>
+                                        <th>Preço/L</th>
+                                        <th>Total</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fuelTableBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. SECTION: CALCULADORA FLEX -->
+                <section id="section-flexcalc" class="app-section" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Calculadora Flex (Etanol vs Gasolina)</h2>
+                            <p>Descubra na hora qual combustível compensa mais na bomba.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex-calc-card">
+                        <div class="flex-inputs-grid">
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 0.95rem;">🌿 Preço do Litro do Etanol (R$)</label>
+                                <input type="number" id="calcPriceEthanol" step="0.001" value="3.89" class="form-control" style="font-size: 1.25rem; font-weight: 700; font-family: var(--font-mono);" oninput="renderFlexCalc()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 0.95rem;">⛽ Preço do Litro da Gasolina (R$)</label>
+                                <input type="number" id="calcPriceGas" step="0.001" value="5.89" class="form-control" style="font-size: 1.25rem; font-weight: 700; font-family: var(--font-mono);" oninput="renderFlexCalc()">
+                            </div>
+                        </div>
+
+                        <div class="flex-result-verdict">
+                            <div class="flex-verdict-text">
+                                <h3 id="calcVerdictTitle">🌿 ABASTEÇA COM ETANOL</h3>
+                                <p id="calcVerdictDesc">O Etanol custa 66.0% da Gasolina (abaixo de 70%). Economia estimada por tanque!</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Relação Etanol / Gasolina</div>
+                                <div class="flex-ratio-meter" id="calcRatioDisplay">66.0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h4 style="font-size: 1rem; color: #fff; margin-bottom: 8px;">💡 Como funciona a Regra dos 70%?</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            O motor a etanol consome em média 30% a mais do que na gasolina por ter menor poder calorífico. Portanto, se o preço do etanol for <strong>até 70% do preço da gasolina</strong>, o custo por quilômetro rodado no etanol é mais vantajoso!
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 6. SECTION: ALERTAS -->
+                <section id="section-alerts" class="app-section" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Alertas & Manutenção Preventiva</h2>
+                            <p>Nunca mais perca o vencimento de troca de óleo, correia ou IPVA.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-primary" onclick="openModal('alertModal')">+ Criar Alerta</button>
+                        </div>
+                    </div>
+
+                    <div id="alertsContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- 7. SECTION: RELATÓRIOS -->
+                <section id="section-reports" class="app-section" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Relatórios & Auditoria</h2>
+                            <p>Visão financeira completa da manutenção e consumo da frota.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-cyan" onclick="exportCSV()">📥 Exportar para Excel (CSV)</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="font-size: 1.15rem; color: #fff; margin-bottom: 16px;">Evolução de Gastos (Manutenção + Combustível)</h3>
+                        <div id="reportMonthlyChart" style="height: 240px; display: flex; align-items: flex-end; gap: 14px; padding-top: 20px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. SECTION: BACKUP & NUVEM (GOOGLE DRIVE) -->
+                <section id="section-cloud" class="app-section" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-title">
+                            <h2>Backup & Sincronização em Nuvem</h2>
+                            <p>Seus dados salvos diretamente no seu próprio Google Drive e em arquivos locais.</p>
+                        </div>
+                    </div>
+
+                    <div class="card" style="border-color: rgba(16, 185, 129, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+                            <div style="font-size: 2.2rem;">☁️</div>
+                            <div>
+                                <h3 style="font-size: 1.2rem; color: #fff;">Sincronização com Google Drive</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                    Cria automaticamente a pasta <strong>AutoCare 4U</strong> no seu Google Drive com o arquivo <code>autocare_dados.json</code>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                            <button class="btn-primary" onclick="syncWithGoogleDrive(true)">🔄 Sincronizar Agora com o Drive</button>
+                            <button class="btn-secondary" onclick="loginWithGoogle()">Conectar / Trocar Conta Google</button>
+                        </div>
+
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                            🔒 <strong>100% Seguro e Privado:</strong> O app não envia seus dados para nenhum servidor intermediário. A comunicação acontece direto entre o seu navegador e a API oficial do Google Drive.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="font-size: 1.15rem; color: #fff; margin-bottom: 16px;">💾 Backups Locais (Sem Nuvem)</h3>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button class="btn-secondary" onclick="exportBackupJSON()">📥 Exportar Backup (.JSON)</button>
+                            <label class="btn-secondary" style="cursor: pointer;">
+                                📤 Restaurar Backup (.JSON)
+                                <input type="file" accept=".json" style="display: none;" onchange="importBackupJSON(event)">
+                            </label>
+                            <button class="btn-cyan" onclick="exportCSV()">📊 Exportar Planilha Excel (.CSV)</button>
+                            <button class="btn-secondary" style="color: var(--red-primary); margin-left: auto;" onclick="clearAllData()">🗑️ Limpar Todos os Dados</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Standardized 4U Footer -->
+            <footer class="footer-clean">
+                <div class="footer-content">
+                    <span class="footer-logo">⚡ 4U.IA.BR</span>
+                    <span>•</span>
+                    <a href="https://4u.ia.br/loja/" class="footer-link">Explorar Loja de Aplicativos</a>
+                    <span>•</span>
+                    <span>AUTOCARE PRO • TODOS OS DIREITOS RESERVADOS &copy; 2026</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-bar">
+        <button class="mobile-nav-btn active" data-section="dashboard" onclick="showSection('dashboard')">
+            <span class="mobile-nav-btn-icon">📊</span>
+            <span>Início</span>
+        </button>
+        <button class="mobile-nav-btn" data-section="vehicles" onclick="showSection('vehicles')">
+            <span class="mobile-nav-btn-icon">🚗</span>
+            <span>Veículos</span>
+        </button>
+        <button class="floating-action-btn" onclick="openModal('fuelModal')" title="Abastecer Agora">
+            <span>⛽</span>
+        </button>
+        <button class="mobile-nav-btn" data-section="maintenance" onclick="showSection('maintenance')">
+            <span class="mobile-nav-btn-icon">🔧</span>
+            <span>Revisões</span>
+        </button>
+        <button class="mobile-nav-btn" data-section="alerts" onclick="showSection('alerts')">
+            <span class="mobile-nav-btn-icon">🔔</span>
+            <span>Alertas</span>
+        </button>
+    </nav>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- 1. Modal: Veículo -->
+    <div class="modal-overlay" id="vehicleModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="vehicleModalTitle">Cadastrar Veículo</h3>
+                <button class="btn-close-modal" onclick="closeModal('vehicleModal')">&times;</button>
+            </div>
+            <form onsubmit="saveVehicleForm(event)">
+                <input type="hidden" id="vehicleId">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Marca</label>
+                        <input type="text" id="vehicleBrand" class="form-control" placeholder="Ex: Toyota, Honda, Jeep" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Modelo</label>
+                        <input type="text" id="vehicleModel" class="form-control" placeholder="Ex: Corolla, Civic, Compass" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Ano de Fabricação</label>
+                        <input type="number" id="vehicleYear" class="form-control" placeholder="Ex: 2023" min="1950" max="2035" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Placa (Mercosul ou Antiga)</label>
+                        <input type="text" id="vehiclePlate" class="form-control" placeholder="Ex: BRA2E19 ou ABC-1234" maxlength="8" required style="font-family: var(--font-mono); font-weight: 700;">
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Cor</label>
+                        <input type="text" id="vehicleColor" class="form-control" placeholder="Ex: Preto, Prata, Branco">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Odômetro Atual (KM)</label>
+                        <input type="number" id="vehicleKm" class="form-control" placeholder="Ex: 45000" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de Combustível Principal</label>
+                    <select id="vehicleFuel" class="form-control">
+                        <option value="Flex">Flex (Gasolina / Etanol)</option>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Etanol">Etanol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Híbrido">Híbrido</option>
+                        <option value="Elétrico">100% Elétrico</option>
+                        <option value="GNV">GNV</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Observações / Chassi</label>
+                    <textarea id="vehicleNotes" class="form-control" rows="2" placeholder="Opcional: detalhes da versão, garantia, chassi..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('vehicleModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar Veículo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal: Manutenção -->
+    <div class="modal-overlay" id="maintenanceModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Registrar Manutenção</h3>
+                <button class="btn-close-modal" onclick="closeModal('maintenanceModal')">&times;</button>
+            </div>
+            <form onsubmit="saveMaintenanceForm(event)">
+                <div class="form-group">
+                    <label class="form-label">Veículo</label>
+                    <select id="maintVehicle" class="form-control" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de Manutenção / Serviço</label>
+                    <select id="maintType" class="form-control" required>
+                        <option value="Troca de Óleo">Troca de Óleo + Filtro</option>
+                        <option value="Pastilhas de Freio">Pastilhas / Discos de Freio</option>
+                        <option value="Filtros">Filtros (Ar, Combustível, Cabine)</option>
+                        <option value="Troca de Pneus">Pneus / Rodízio</option>
+                        <option value="Alinhamento">Alinhamento e Balanceamento</option>
+                        <option value="Correia Dentada">Correia Dentada / Tensores</option>
+                        <option value="Bateria">Bateria / Elétrica</option>
+                        <option value="Velas">Velas de Ignição / Cabos</option>
+                        <option value="Suspensão">Suspensão e Amortecedores</option>
+                        <option value="Ar Condicionado">Higienização / Ar Condicionado</option>
+                        <option value="Revisão Geral">Revisão Geral Preventiva</option>
+                        <option value="Funilaria">Funilaria e Pintura</option>
+                        <option value="Outros">Outros Reparos</option>
+                    </select>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Data da Manutenção</label>
+                        <input type="date" id="maintDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Odômetro no Momento (KM)</label>
+                        <input type="number" id="maintKm" class="form-control" placeholder="Ex: 50000" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Valor Total Pago (R$)</label>
+                        <input type="number" id="maintCost" class="form-control" step="0.01" placeholder="0.00" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Oficina / Estabelecimento</label>
+                        <input type="text" id="maintWorkshop" class="form-control" placeholder="Ex: Concessionária, AutoCenter...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Peças Utilizadas & Observações</label>
+                    <textarea id="maintNotes" class="form-control" rows="2" placeholder="Ex: Óleo 0W20 sintético, filtro original..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('maintenanceModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Modal: Abastecimento -->
+    <div class="modal-overlay" id="fuelModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Novo Abastecimento</h3>
+                <button class="btn-close-modal" onclick="closeModal('fuelModal')">&times;</button>
+            </div>
+            <form onsubmit="saveFuelForm(event)">
+                <div class="form-group">
+                    <label class="form-label">Veículo</label>
+                    <select id="fuelVehicle" class="form-control" required></select>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Data</label>
+                        <input type="date" id="fuelDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Odômetro Atual (KM)</label>
+                        <input type="number" id="fuelKm" class="form-control" placeholder="Ex: 48200" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Litros Abastecidos</label>
+                        <input type="number" id="fuelLiters" class="form-control" step="0.01" placeholder="Ex: 45.5" min="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Preço por Litro (R$)</label>
+                        <input type="number" id="fuelPrice" class="form-control" step="0.001" placeholder="Ex: 5.89" min="0.01" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Combustível</label>
+                        <select id="fuelType" class="form-control">
+                            <option value="Gasolina Comum">Gasolina Comum</option>
+                            <option value="Gasolina Aditivada">Gasolina Aditivada</option>
+                            <option value="Etanol">Etanol</option>
+                            <option value="Diesel S10">Diesel S10</option>
+                            <option value="GNV">GNV</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Posto / Bandeira</label>
+                        <input type="text" id="fuelStation" class="form-control" placeholder="Ex: Shell, Ipiranga, BR...">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-secondary); font-size: 0.85rem;">
+                        <input type="checkbox" id="fuelFullTank" checked style="width: 16px; height: 16px; accent-color: var(--emerald-primary);">
+                        <span>Encheu o tanque? (Necessário para calcular km/l com precisão)</span>
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('fuelModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar Abastecimento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Modal: Alerta -->
+    <div class="modal-overlay" id="alertModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Criar Alerta de Manutenção</h3>
+                <button class="btn-close-modal" onclick="closeModal('alertModal')">&times;</button>
+            </div>
+            <form onsubmit="saveAlertForm(event)">
+                <div class="form-group">
+                    <label class="form-label">Veículo</label>
+                    <select id="alertVehicle" class="form-control" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Título do Alerta</label>
+                    <input type="text" id="alertTitle" class="form-control" placeholder="Ex: Troca de Óleo, IPVA 2027, Correia..." required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Critério de Disparo</label>
+                    <div style="display: flex; gap: 16px; margin-top: 6px;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="radio" name="alertTrigger" value="km" checked style="accent-color: var(--emerald-primary);">
+                            <span>Por Quilometragem (KM)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="radio" name="alertTrigger" value="date" style="accent-color: var(--emerald-primary);">
+                            <span>Por Data Específica</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="alertKmGroup">
+                    <label class="form-label">Disparar ao Atingir KM</label>
+                    <input type="number" id="alertKmValue" class="form-control" placeholder="Ex: 50000" min="0">
+                </div>
+
+                <div class="form-group" id="alertDateGroup" style="display: none;">
+                    <label class="form-label">Disparar na Data</label>
+                    <input type="date" id="alertDateValue" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descrição / Instruções</label>
+                    <textarea id="alertDesc" class="form-control" rows="2" placeholder="Ex: Comprar filtro original e óleo 0W20"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('alertModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Criar Alerta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. Modal: Dossiê do Veículo (Revenda / Histórico) -->
+    <div class="modal-overlay" id="dossierModal">
+        <div class="modal-box" style="max-width: 750px;">
+            <div class="modal-header">
+                <h3 id="dossierModalTitle">Dossiê de Procedência do Veículo</h3>
+                <button class="btn-close-modal" onclick="closeModal('dossierModal')">&times;</button>
+            </div>
+            
+            <div id="dossierContent">
+                <!-- Populated by JS -->
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <button type="button" class="btn-secondary" onclick="closeModal('dossierModal')">Fechar</button>
+                <button type="button" class="btn-primary" onclick="printDossier()">🖨️ Imprimir / Salvar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js?v=2.0"></script>
+</body>
+</html>
