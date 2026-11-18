@@ -40,6 +40,11 @@
     font-family: var(--font-sans);
 }
 
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
 body {
     background-color: var(--bg-main);
     color: var(--text-primary);
